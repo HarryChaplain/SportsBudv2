@@ -56,10 +56,20 @@ angular.module('starter.controllers', [])
     }
 
 })
+.controller('TabsCtrl', function($scope, User) {
+
+  $scope.matchCount = User.matchesCount;
+
+  $scope.enteringMatches = function(){
+    User.newMatches = 0;
+  }
+
+})
 
 .controller('MatchesCtrl', function($scope, User) {
 
   $scope.matches = User.matches;
+
 
   $scope.removeOpp = function(opponent, index){
     User.removeOppFromMatches(opponent, index);

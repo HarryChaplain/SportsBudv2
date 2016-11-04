@@ -11,7 +11,7 @@ navigation history that also transitions its views in and out.
   </ion-tab>
 
   <!-- Chats Tab -->
-  <ion-tab title="Matches" icon-off="ion-ios-chatboxes-outline" icon-on="ion-ios-chatboxes" href="#/tab/matches">
+  <ion-tab title="Matches" icon-off="ion-ios-chatboxes-outline" icon-on="ion-ios-chatboxes" on-select="enteringMatches()" badge="matchCount()" badge-style="badge-assertive" href="#/tab/matches">
     <ion-nav-view name="tab-matches"></ion-nav-view>
   </ion-tab>
 
