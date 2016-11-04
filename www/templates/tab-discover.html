@@ -1,0 +1,29 @@
+<ion-view view-title="Discover" class="tab-discover-page">
+  <ion-content class="padding" scroll="false">
+    <div class="list card current-opp" ng-class="{skipped: currentOpp.rated == false, favorited: currentOpp.rated == true}" ng-show="currentOpp && !currentOpp.hide">
+
+      <div class="item item-image">
+        <img ng-src="{{ currentOpp.image_large }}">
+      </div>
+
+      <div class="item">
+        <h2>{{ currentOpp.name }}</h2>
+        <p>{{ currentOpp.request }}</p>
+      </div>
+
+      <div class="item tabs tabs-secondary tabs-icon-left">
+        <a class="tab-item" ng-click="sendFeedback(false)">
+          <i class="icon ion-close"></i>
+          No
+        </a>
+        <a class="tab-item" ng-click="sendFeedback(true)">
+          <i class="icon ion-checkmark"></i>
+          Yes
+        </a>
+      </div>
+
+    </div>
+
+
+  </ion-content>
+</ion-view>

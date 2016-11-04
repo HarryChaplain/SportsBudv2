@@ -1,0 +1,16 @@
+<ion-view view-title="Matches">
+  <ion-content>
+    <ion-list>
+      <ion-item ng-repeat="opponent in matches" class="item-avatar">
+        <img ng-src="{{ opponent.image_small }}">
+        <h2>{{ opponent.name }}</h2>
+        <p>{{ opponent.request }}</p>
+        <ion-option-button class="button-assertive" ng-click="removeOpp(opponent, $index)">
+          <i class="ion-minus-circled"></i>
+        </ion-option-button>
+      </ion-item>
+
+
+    </ion-list>
+  </ion-content>
+</ion-view>
