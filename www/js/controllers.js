@@ -66,6 +66,13 @@ angular.module('starter.controllers', [])
 
 })
 
+.controller('AccountCtrl', function($scope, User) {
+
+
+  
+
+})
+
 .controller('MatchesCtrl', function($scope, User) {
 
   $scope.matches = User.matches;
