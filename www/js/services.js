@@ -4,7 +4,8 @@ angular.module('starter.services', [])
 
   var o = {
     matches: [],
-    newMatches: 0
+    newMatches: 0,
+    name: 'Harry Chaplain'
   }
 
   o.matchesCount = function() {

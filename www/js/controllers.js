@@ -68,8 +68,8 @@ angular.module('starter.controllers', [])
 
 .controller('AccountCtrl', function($scope, User) {
 
+  $scope.dist = 50;
 
-  
 
 })
 

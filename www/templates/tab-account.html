@@ -1,5 +1,29 @@
 <ion-view view-title="Account">
   <ion-content>
-    <h1>Account Page</h1>
+    <ul class="list">
+        <div class="item item-divider">
+          Search Distance(km): {{dist}}km
+        </div>
+        <div class="list">
+          <div class="item range range-positive">
+            <input type="range" name="volume" min="0" max="100" ng-model="dist">
+          </div>
+        </div>
+        <div class="item item-divider">
+          Select a sport to play:
+        </div>
+        <label class="item item-input item-select">
+          <div class="input-label">
+            Sports
+          </div>
+          <select>
+            <option selected>Tennis</option>
+            <option>Football</option>
+            <option>Golf</option>
+            <option>Basketball</option>
+            <option>Netball</option>
+          </select>
+        </label>
+      </ul>
   </ion-content>
 </ion-view>
