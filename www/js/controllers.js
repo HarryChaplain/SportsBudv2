@@ -1,6 +1,17 @@
 angular.module('starter.controllers', [])
 
-.controller('DiscoverCtrl', function($scope, $timeout, User) {
+.controller('DiscoverCtrl', function($scope, $timeout, User, $state, Auth) {
+
+  $scope.auth = Auth;
+
+  $scope.auth.$onAuthStateChanged(function(firebaseUser) {
+    if(firebaseUser){
+      console.log("logged in");
+    }else{
+    $state.go('login');
+    };
+  });
+
     $scope.opponents = [
        {
           "name":"Adam",
@@ -66,14 +77,75 @@ angular.module('starter.controllers', [])
 
 })
 
-.controller('AccountCtrl', function($scope, User) {
+.controller('AccountCtrl', function($scope, User, $state, Auth, Profile) {
+
+  $scope.auth = Auth;
+
+  $scope.auth.$onAuthStateChanged(function(firebaseUser) {
+    if(firebaseUser){
+      $scope.firebaseUser = firebaseUser;
+      $scope.profile = Profile(firebaseUser.uid);
+    }else{
+      $state.go('login');
+    };
+  });
 
   $scope.dist = 50;
+
+  $scope.saveProfile = function() {
+    $scope.profile.$save().then(function() {
+        alert('Profile saved!');
+      }).catch(function(error) {
+        alert('Error!');
+      });
+  }
+
+  $scope.logout = function() {
+
+    firebase.auth().signOut().then(function() {
+      console.log("logged out");
+      $state.go('login');
+    }, function(error) {
+      console.log(error);
+    });
+
+
+  };
 
 
 })
 
-.controller('MatchesCtrl', function($scope, User) {
+.controller('LoginCtrl', ['$scope', 'Auth', "$state", function($scope, Auth, $state) {
+
+  $scope.signIn = function() {
+    $scope.message = null;
+    $scope.error = null;
+
+    // Delete the currently signed-in user
+    Auth.$signInWithEmailAndPassword($scope.email, $scope.password).then(function(firebaseUser) {
+      $scope.message = "logged in with id:" + firebaseUser.email;
+      $scope.auth = Auth;
+      $state.go('tab.discover');
+    }).catch(function(error) {
+      $scope.error = error;
+    });
+
+  };
+
+}])
+
+
+.controller('MatchesCtrl', function($scope, User, Auth, $state) {
+
+  $scope.auth = Auth;
+
+  $scope.auth.$onAuthStateChanged(function(firebaseUser) {
+    if(firebaseUser){
+      console.log("logged in");
+    }else{
+    $state.go('login');
+    };
+  });
 
   $scope.matches = User.matches;
 

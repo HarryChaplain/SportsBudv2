@@ -1,0 +1,30 @@
+<ion-view view-title="Login">
+  
+    <ion-content class="padding-top" ng-controller="LoginCtrl">
+
+
+            <div class="list">
+                <span class="input-label">Email</span>
+                <input name="email" type="email" ng-model="email" placeholder="Email"
+                ng-minlength="6"
+                ng-maxlength="30"
+                required>
+              </label>
+                <span class="input-label">Password</span>
+                <input name="txtPassword" type="password" ng-model="password" placeholder="Password"
+                ng-minlength="6"
+                ng-maxlength="30"
+                required>
+              </label>
+
+            </div>
+            <div class="padding-top">
+              <input type="button" class="button button-block button-positive" value="Login" ng-click="signIn()">
+
+            </div>
+          </ion-content>
+
+
+
+
+</ion-view>

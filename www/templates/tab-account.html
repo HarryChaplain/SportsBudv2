@@ -1,29 +1,49 @@
 <ion-view view-title="Account">
   <ion-content>
-    <ul class="list">
-        <div class="item item-divider">
-          Search Distance(km): {{dist}}km
-        </div>
-        <div class="list">
-          <div class="item range range-positive">
-            <input type="range" name="volume" min="0" max="100" ng-model="dist">
+        <ul class="list">
+          <div class="item item-divider">
+            <h2>Profile:</h2>
           </div>
-        </div>
-        <div class="item item-divider">
-          Select a sport to play:
-        </div>
-        <label class="item item-input item-select">
-          <div class="input-label">
-            Sports
-          </div>
-          <select>
-            <option selected>Tennis</option>
-            <option>Football</option>
-            <option>Golf</option>
-            <option>Basketball</option>
-            <option>Netball</option>
-          </select>
+          <label class="item item-input">
+            <input type="text" placeholder="First Name" ng-model="profile.firstname">
+          </label>
+          <label class="item item-input">
+            <input type="text" placeholder="Last Name" ng-model="profile.lastname">
+          </label>
+            <div class="item item-divider">
+              <h3>Select a sport to play:</h3>
+            </div>
+          <label class="item item-input item-select">
+            <div class="input-label">
+              Sports
+            </div>
+            <select ng-model="profile.sport">
+              <option selected>Tennis</option>
+              <option>Football</option>
+              <option>Golf</option>
+              <option>Basketball</option>
+              <option>Netball</option>
+            </select>
         </label>
-      </ul>
+
+
+      <div class="list">
+          <div class="item item-divider">
+            <h3>Search Distance(km): {{dist}}km</h3>
+          </div>
+
+            <div class="item range range-positive">
+              <input type="range" name="volume" min="1" max="100" ng-model="dist">
+            </div>
+          </div>
+
+          </ul>
+
+          <div class="padding-top">
+              <input type="button" class="button button-block button-positive" value="Save" ng-click="saveProfile()">
+            </div>
+          <div class="padding-top">
+              <input type="button" class="button button-block button-assertive" value="Logout" ng-click="logout()">
+          </div>
   </ion-content>
 </ion-view>

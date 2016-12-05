@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'firebase', 'ui.router'])
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -25,6 +25,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
 
 .config(function($stateProvider, $urlRouterProvider) {
 
+
+  var config = {
+    apiKey: "AIzaSyC4ryT2cxnrDsApjzJmIzmrzXZ1vzEbuiI",
+    authDomain: "sportsbud-31723.firebaseapp.com",
+    databaseURL: "https://sportsbud-31723.firebaseio.com",
+    storageBucket: "sportsbud-31723.appspot.com",
+    messagingSenderId: "538941118908"
+  };
+  firebase.initializeApp(config);
+
   // Ionic uses AngularUI Router which uses the concept of states
   // Learn more here: https://github.com/angular-ui/ui-router
   // Set up the various states which the app can be in.
@@ -37,6 +47,11 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
     abstract: true,
     templateUrl: 'templates/tabs.html',
     controller: 'TabsCtrl'
+  })
+
+  .state('login', {
+    url: '/login',
+    templateUrl: 'templates/login.html'
   })
 
   // Each tab has its own nav history stack:

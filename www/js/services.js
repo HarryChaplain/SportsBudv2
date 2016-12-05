@@ -1,4 +1,4 @@
-angular.module('starter.services', [])
+angular.module('starter.services', ['firebase'])
 
 .factory('User', function() {
 
@@ -29,4 +29,23 @@ angular.module('starter.services', [])
 
   return o;
 
-});
+})
+
+.factory("Auth", ["$firebaseAuth",
+  function($firebaseAuth) {
+
+    return $firebaseAuth();
+  }
+])
+
+.factory("Profile", function($firebaseObject) {
+    return function(username) {
+      // create a reference to the database node where we will store our data
+      var ref = firebase.database().ref("Profile");
+      var profileRef = ref.child(username);
+
+      // return it as a synchronized object
+      return $firebaseObject(profileRef);
+    }
+  }
+);
