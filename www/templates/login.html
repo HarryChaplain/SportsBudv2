@@ -1,5 +1,5 @@
 <ion-view view-title="Login">
-  
+
     <ion-content class="padding-top" ng-controller="LoginCtrl">
 
 
@@ -20,7 +20,9 @@
             </div>
             <div class="padding-top">
               <input type="button" class="button button-block button-positive" value="Login" ng-click="signIn()">
-
+              <input type="button" class="button button-block button-positive" value="Register" ng-click="createUser()">
+              <p>{{error.message}}</p>
+              <p> {{ message }} </p>
             </div>
           </ion-content>
 

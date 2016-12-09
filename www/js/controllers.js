@@ -1,50 +1,26 @@
 angular.module('starter.controllers', [])
 
-.controller('DiscoverCtrl', function($scope, $timeout, User, $state, Auth) {
+.controller('DiscoverCtrl', function($scope, $timeout, User, $state, Auth, $firebaseArray, $timeout) {
 
   $scope.auth = Auth;
+  $scope.profiles = [];
 
   $scope.auth.$onAuthStateChanged(function(firebaseUser) {
     if(firebaseUser){
-      console.log("logged in");
+      var ref = firebase.database().ref("Profile");
+        var profiles = $firebaseArray(ref);
+        $scope.firebaseUser = firebaseUser;
+        $scope.user = firebaseUser.email;
+        $scope.profiles = profiles;
+
     }else{
     $state.go('login');
     };
   });
 
-    $scope.opponents = [
-       {
-          "name":"Adam",
-          "request":"Wants to play tennis",
-          "image_small":"img/adam.jpg",
-          "image_large":"img/adam.jpg"
-       },
-       {
-           "name":"Ben",
-           "request":"Wants to play golf",
-           "image_small":"img/ben.png",
-           "image_large":"img/ben.png"
-       },
-       {
-           "name":"Mike",
-           "request":"Wants to play Snooker",
-           "image_small":"img/mike.png",
-           "image_large":"img/mike.png"
-       },
-       {
-           "name":"Perry",
-           "request":"Wants to play squash",
-           "image_small":"img/perry.png",
-           "image_large":"img/perry.png"
-       },
-       {
-           "name":"Max",
-           "request":"Wants to play Basketball",
-           "image_small":"img/max.png",
-           "image_large":"img/max.png"
-       }]
+  $timeout(function () {
 
-    $scope.currentOpp = angular.copy($scope.opponents[0]);
+    $scope.currentOpp = angular.copy($scope.profiles[0]);
 
     $scope.sendFeedback = function (bool) {
 
@@ -54,17 +30,15 @@ angular.module('starter.controllers', [])
       $scope.currentOpp.hide = true;
 
       $timeout(function(){
-        // set the current song to one of our three songs
-        var randomOpp = Math.round(Math.random() * ($scope.opponents.length));
+        var randomOpp = Math.round(Math.random() * ($scope.profiles.length));
 
-         // update current song in scope
-        $scope.currentOpp = angular.copy($scope.opponents[randomOpp]);
+        $scope.currentOpp = angular.copy($scope.profiles[randomOpp]);
 
-      }, 250);
+        }, 250);
 
+      }
 
-
-    }
+    }, 2000);
 
 })
 .controller('TabsCtrl', function($scope, User) {
@@ -123,7 +97,8 @@ angular.module('starter.controllers', [])
 
     // Delete the currently signed-in user
     Auth.$signInWithEmailAndPassword($scope.email, $scope.password).then(function(firebaseUser) {
-      $scope.message = "logged in with id:" + firebaseUser.email;
+      $scope.email = '';
+      $scope.password = '';
       $scope.auth = Auth;
       $state.go('tab.discover');
     }).catch(function(error) {
@@ -132,7 +107,22 @@ angular.module('starter.controllers', [])
 
   };
 
-}])
+  $scope.createUser = function() {
+    $scope.message = null;
+    $scope.error = null;
+
+    Auth.$createUserWithEmailAndPassword($scope.email, $scope.password)
+      .then(function(firebaseUser) {
+        $scope.message = "User created with email: " + firebaseUser.email;
+
+      }).catch(function(error) {
+        $scope.error = error;
+      });
+    };
+  }
+
+
+])
 
 
 .controller('MatchesCtrl', function($scope, User, Auth, $state) {

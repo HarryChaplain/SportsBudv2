@@ -4,8 +4,7 @@ angular.module('starter.services', ['firebase'])
 
   var o = {
     matches: [],
-    newMatches: 0,
-    name: 'Harry Chaplain'
+    newMatches: 0
   }
 
   o.matchesCount = function() {
