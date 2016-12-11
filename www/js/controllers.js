@@ -1,6 +1,6 @@
 angular.module('starter.controllers', [])
 
-.controller('DiscoverCtrl', function($scope, $timeout, User, $state, Auth, $firebaseArray, $timeout) {
+.controller('DiscoverCtrl', function($scope, $timeout, User, $state, Auth, $firebaseArray, $timeout, $cordovaGeolocation) {
 
   $scope.auth = Auth;
   $scope.profiles = [];
@@ -12,15 +12,31 @@ angular.module('starter.controllers', [])
         $scope.firebaseUser = firebaseUser;
         $scope.user = firebaseUser.email;
         $scope.profiles = profiles;
+        $scope.watch = $cordovaGeolocation.watchPosition();
+        $scope.watch.then(
+          null,
+          function(err) {
+            console.log(err);
+          },
+          function(position) {
+            $scope.currentLat  = position.coords.latitude;
+            $scope.currentLong = position.coords.longitude;
+        });
 
     }else{
     $state.go('login');
+    $scope.watch.clearWatch();
+
     };
   });
 
   $timeout(function () {
 
+    var i = 0;
+
     $scope.currentOpp = angular.copy($scope.profiles[0]);
+
+    $scope.calcDistance($scope.currentLat, $scope.currentLong, $scope.currentOpp.lat, $scope.currentOpp.long);
 
     $scope.sendFeedback = function (bool) {
 
@@ -28,17 +44,38 @@ angular.module('starter.controllers', [])
 
       $scope.currentOpp.rated = bool;
       $scope.currentOpp.hide = true;
-
       $timeout(function(){
-        var randomOpp = Math.round(Math.random() * ($scope.profiles.length));
-
-        $scope.currentOpp = angular.copy($scope.profiles[randomOpp]);
-
+          i = i + 1;
+          console.log(i);
+          i = i % $scope.profiles.length;
+          if($scope.profiles[i])
+          {
+            $scope.currentOpp = angular.copy($scope.profiles[i]);
+            $scope.calcDistance($scope.currentLat, $scope.currentLong, $scope.currentOpp.lat, $scope.currentOpp.long);
+          }
         }, 250);
 
       }
 
     }, 2000);
+
+    $scope.calcDistance = function(lat1,lon1,lat2,lon2) {
+      var R = 6371; // Radius of the earth in km
+      var dLat = deg2rad(lat2-lat1);  // deg2rad below
+      var dLon = deg2rad(lon2-lon1);
+      var a =
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      var d = R * c; // Distance in km
+      $scope.distance = Math.round(d);
+      ;
+  }
+
+  function deg2rad(deg) {
+    return deg * (Math.PI/180)
+  }
 
 })
 .controller('TabsCtrl', function($scope, User) {
@@ -51,18 +88,34 @@ angular.module('starter.controllers', [])
 
 })
 
-.controller('AccountCtrl', function($scope, User, $state, Auth, Profile) {
+.controller('AccountCtrl', function($scope, User, $state, Auth, Profile, $cordovaGeolocation) {
 
   $scope.auth = Auth;
+
+
 
   $scope.auth.$onAuthStateChanged(function(firebaseUser) {
     if(firebaseUser){
       $scope.firebaseUser = firebaseUser;
       $scope.profile = Profile(firebaseUser.uid);
+
+      $scope.watch = $cordovaGeolocation.watchPosition();
+      $scope.watch.then(
+        null,
+        function(err) {
+          console.log(err);
+        },
+        function(position) {
+          $scope.profile.lat  = position.coords.latitude
+          $scope.profile.long = position.coords.longitude
+      });
+
     }else{
       $state.go('login');
     };
   });
+
+
 
   $scope.dist = 50;
 
@@ -78,7 +131,9 @@ angular.module('starter.controllers', [])
 
     firebase.auth().signOut().then(function() {
       console.log("logged out");
-      $state.go('login');
+      $scope.watch.clearWatch();
+
+
     }, function(error) {
       console.log(error);
     });
@@ -100,7 +155,7 @@ angular.module('starter.controllers', [])
       $scope.email = '';
       $scope.password = '';
       $scope.auth = Auth;
-      $state.go('tab.discover');
+      $state.go('tab.account');
     }).catch(function(error) {
       $scope.error = error;
     });
