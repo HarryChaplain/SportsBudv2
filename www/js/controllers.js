@@ -57,7 +57,7 @@ angular.module('starter.controllers', [])
 
       }
 
-    }, 2000);
+    }, 3000);
 
     $scope.calcDistance = function(lat1,lon1,lat2,lon2) {
       var R = 6371; // Radius of the earth in km
@@ -70,7 +70,7 @@ angular.module('starter.controllers', [])
       var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
       var d = R * c; // Distance in km
       $scope.distance = Math.round(d);
-      ;
+
   }
 
   function deg2rad(deg) {
@@ -98,7 +98,6 @@ angular.module('starter.controllers', [])
     if(firebaseUser){
       $scope.firebaseUser = firebaseUser;
       $scope.profile = Profile(firebaseUser.uid);
-
       $scope.watch = $cordovaGeolocation.watchPosition();
       $scope.watch.then(
         null,
@@ -115,9 +114,34 @@ angular.module('starter.controllers', [])
     };
   });
 
-
+  // $scope.addImage = function() {
+  //     var options = {
+  //         destinationType : Camera.DestinationType.FILE_URI,
+  //         sourceType : Camera.PictureSourceType.PHOTOLIBRARY,
+  //         allowEdit : false,
+  //         encodingType: Camera.EncodingType.JPEG,
+  //         popoverOptions: CameraPopoverOptions
+  //       };
+  //
+  //       $cordovaCamera.getPicture(options).then(function(imageData) {
+  //
+  //           $scope.profile.image = imageData;
+  //
+  //
+  //     }, function(err) {
+  //       console.log(err);
+  //     });
+  //   }
 
   $scope.dist = 50;
+
+  $scope.upload = function(){
+    var storageRef = firebase.storage().ref();
+
+
+    storageRef.child('images/' + $scope.profile.image).putString($scope.profile.image);
+
+  };
 
   $scope.saveProfile = function() {
     $scope.profile.$save().then(function() {
@@ -169,7 +193,8 @@ angular.module('starter.controllers', [])
     Auth.$createUserWithEmailAndPassword($scope.email, $scope.password)
       .then(function(firebaseUser) {
         $scope.message = "User created with email: " + firebaseUser.email;
-
+        $scope.email = '';
+        $scope.password = '';
       }).catch(function(error) {
         $scope.error = error;
       });
