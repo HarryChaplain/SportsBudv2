@@ -1,24 +1,25 @@
 <ion-view view-title="Login">
 
-    <ion-content class="padding-top" ng-controller="LoginCtrl">
-
+    <ion-content class="padding"ng-controller="LoginCtrl">
 
             <div class="list">
-                <span class="input-label">Email</span>
-                <input name="email" type="email" ng-model="email" placeholder="Email"
+              <label class="item item-input">
+                <input type="email" ng-model="email" placeholder="Email"
                 ng-minlength="6"
                 ng-maxlength="30"
+                width="90%"
                 required>
               </label>
-                <span class="input-label">Password</span>
-                <input name="txtPassword" type="password" ng-model="password" placeholder="Password"
+              <label class="item item-input">
+                <input  type="password" ng-model="password" placeholder="Password"
                 ng-minlength="6"
                 ng-maxlength="30"
                 required>
               </label>
 
+
             </div>
-            <div class="padding-top">
+            <div>
               <input type="button" class="button button-block button-positive" value="Login" ng-click="signIn()">
               <input type="button" class="button button-block button-positive" value="Register" ng-click="createUser()">
               <p>{{error.message}}</p>

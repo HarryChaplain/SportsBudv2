@@ -4,6 +4,7 @@ angular.module('starter.controllers', [])
 
   $scope.auth = Auth;
   $scope.profiles = [];
+  $scope.phPics = ['img/adam.jpg', 'img/perry.png', 'img/mike.png', 'img/max.png', 'img/ben.png'];
 
   $scope.auth.$onAuthStateChanged(function(firebaseUser) {
     if(firebaseUser){
@@ -35,6 +36,7 @@ angular.module('starter.controllers', [])
     var i = 0;
 
     $scope.currentOpp = angular.copy($scope.profiles[0]);
+    $scope.currentOpp.image = $scope.phPics[i];
 
     $scope.calcDistance($scope.currentLat, $scope.currentLong, $scope.currentOpp.lat, $scope.currentOpp.long);
 
@@ -46,11 +48,12 @@ angular.module('starter.controllers', [])
       $scope.currentOpp.hide = true;
       $timeout(function(){
           i = i + 1;
-          console.log(i);
           i = i % $scope.profiles.length;
           if($scope.profiles[i])
           {
+
             $scope.currentOpp = angular.copy($scope.profiles[i]);
+            $scope.currentOpp.image = $scope.phPics[i];
             $scope.calcDistance($scope.currentLat, $scope.currentLong, $scope.currentOpp.lat, $scope.currentOpp.long);
           }
         }, 250);
@@ -69,8 +72,11 @@ angular.module('starter.controllers', [])
       Math.sin(dLon/2) * Math.sin(dLon/2);
       var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
       var d = R * c; // Distance in km
-      $scope.distance = Math.round(d);
-
+      if(d < 1){
+        $scope.distance = "Less than 1";
+      }else{
+        $scope.distance = Math.round(d);
+      }
   }
 
   function deg2rad(deg) {
