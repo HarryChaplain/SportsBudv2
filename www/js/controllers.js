@@ -4,7 +4,7 @@ angular.module('starter.controllers', [])
 
   $scope.auth = Auth;
   $scope.profiles = [];
-  $scope.phPics = ['img/adam.jpg', 'img/perry.png', 'img/mike.png', 'img/max.png', 'img/ben.png'];
+  //$scope.phPics = ['img/adam.jpg', 'img/perry.png', 'img/mike.png', 'img/max.png', 'img/ben.png'];
 
   $scope.auth.$onAuthStateChanged(function(firebaseUser) {
     if(firebaseUser){
@@ -36,7 +36,7 @@ angular.module('starter.controllers', [])
     var i = 0;
 
     $scope.currentOpp = angular.copy($scope.profiles[0]);
-    $scope.currentOpp.image = $scope.phPics[i];
+    //$scope.currentOpp.image = $scope.phPics[i];
 
     $scope.calcDistance($scope.currentLat, $scope.currentLong, $scope.currentOpp.lat, $scope.currentOpp.long);
 
@@ -51,9 +51,9 @@ angular.module('starter.controllers', [])
           i = i % $scope.profiles.length;
           if($scope.profiles[i])
           {
-
+            console.log($scope.profiles);
             $scope.currentOpp = angular.copy($scope.profiles[i]);
-            $scope.currentOpp.image = $scope.phPics[i];
+            //$scope.currentOpp.image = $scope.phPics[i];
             $scope.calcDistance($scope.currentLat, $scope.currentLong, $scope.currentOpp.lat, $scope.currentOpp.long);
           }
         }, 250);
@@ -94,7 +94,7 @@ angular.module('starter.controllers', [])
 
 })
 
-.controller('AccountCtrl', function($scope, User, $state, Auth, Profile, $cordovaGeolocation) {
+.controller('AccountCtrl', function($scope, User, $state, Auth, Profile, $cordovaGeolocation, $firebaseArray, $cordovaCamera) {
 
   $scope.auth = Auth;
 
@@ -103,6 +103,12 @@ angular.module('starter.controllers', [])
   $scope.auth.$onAuthStateChanged(function(firebaseUser) {
     if(firebaseUser){
       $scope.firebaseUser = firebaseUser;
+      var ref = firebase.database().ref("Profile");
+      var userReference = ref.child(firebaseUser.uid);
+      var syncArray = $firebaseArray(userReference);
+      $scope.images = syncArray;
+
+
       $scope.profile = Profile(firebaseUser.uid);
       $scope.watch = $cordovaGeolocation.watchPosition();
       $scope.watch.then(
@@ -120,34 +126,38 @@ angular.module('starter.controllers', [])
     };
   });
 
-  // $scope.addImage = function() {
-  //     var options = {
-  //         destinationType : Camera.DestinationType.FILE_URI,
-  //         sourceType : Camera.PictureSourceType.PHOTOLIBRARY,
-  //         allowEdit : false,
-  //         encodingType: Camera.EncodingType.JPEG,
-  //         popoverOptions: CameraPopoverOptions
-  //       };
-  //
-  //       $cordovaCamera.getPicture(options).then(function(imageData) {
-  //
-  //           $scope.profile.image = imageData;
-  //
-  //
-  //     }, function(err) {
-  //       console.log(err);
-  //     });
-  //   }
+
+  $scope.test = function(){
+    console.log($scope.profile);
+  }
+  $scope.upload = function() {
+
+        var options = {
+            quality : 75,
+            destinationType : Camera.DestinationType.DATA_URL,
+            sourceType : Camera.PictureSourceType.PHOTOLIBRARY,
+            allowEdit : true,
+            encodingType: Camera.EncodingType.JPEG,
+            popoverOptions: CameraPopoverOptions,
+            targetWidth: 500,
+            targetHeight: 500,
+            saveToPhotoAlbum: false
+        };
+
+        $cordovaCamera.getPicture(options).then(function(imageData) {
+
+            $scope.images[0] = {image: imageData};
+            $scope.images[0].$id = "images";
+            $scope.images.$save(0).then(function() {
+                alert("Image has been uploaded");
+            });
+        }, function(error) {
+            console.error(error);
+        });
+    }
 
   $scope.dist = 50;
 
-  $scope.upload = function(){
-    var storageRef = firebase.storage().ref();
-
-
-    storageRef.child('images/' + $scope.profile.image).putString($scope.profile.image);
-
-  };
 
   $scope.saveProfile = function() {
     $scope.profile.$save().then(function() {
