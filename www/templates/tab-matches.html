@@ -3,7 +3,7 @@
     <ion-list>
         <h4 ng-show="matches.length === 0" align="middle" class="padding-top">No Matches</h4>
       <ion-item ng-repeat="opponent in matches" class="item-avatar">
-        <img ng-src="{{ opponent.image }}">
+        <img ng-src="data:image/jpeg;base64,{{ opponent.images.profilePic }}">
         <h2>{{ opponent.firstname }}</h2>
         <p>Wants to play {{ opponent.sport }}</p>
         <ion-option-button class="button-assertive" ng-click="removeOpp(opponent, $index)">

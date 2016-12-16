@@ -51,16 +51,14 @@ angular.module('starter.controllers', [])
           i = i % $scope.profiles.length;
           if($scope.profiles[i])
           {
-            console.log($scope.profiles);
             $scope.currentOpp = angular.copy($scope.profiles[i]);
-            //$scope.currentOpp.image = $scope.phPics[i];
             $scope.calcDistance($scope.currentLat, $scope.currentLong, $scope.currentOpp.lat, $scope.currentOpp.long);
           }
         }, 250);
 
       }
 
-    }, 3000);
+    }, 4000);
 
     $scope.calcDistance = function(lat1,lon1,lat2,lon2) {
       var R = 6371; // Radius of the earth in km
@@ -94,7 +92,7 @@ angular.module('starter.controllers', [])
 
 })
 
-.controller('AccountCtrl', function($scope, User, $state, Auth, Profile, $cordovaGeolocation, $firebaseArray, $cordovaCamera) {
+.controller('AccountCtrl', function($scope, User, $state, Auth, Profile, $cordovaGeolocation, $cordovaCamera) {
 
   $scope.auth = Auth;
 
@@ -103,12 +101,6 @@ angular.module('starter.controllers', [])
   $scope.auth.$onAuthStateChanged(function(firebaseUser) {
     if(firebaseUser){
       $scope.firebaseUser = firebaseUser;
-      var ref = firebase.database().ref("Profile");
-      var userReference = ref.child(firebaseUser.uid);
-      var syncArray = $firebaseArray(userReference);
-      $scope.images = syncArray;
-
-
       $scope.profile = Profile(firebaseUser.uid);
       $scope.watch = $cordovaGeolocation.watchPosition();
       $scope.watch.then(
@@ -126,10 +118,6 @@ angular.module('starter.controllers', [])
     };
   });
 
-
-  $scope.test = function(){
-    console.log($scope.profile);
-  }
   $scope.upload = function() {
 
         var options = {
@@ -146,11 +134,7 @@ angular.module('starter.controllers', [])
 
         $cordovaCamera.getPicture(options).then(function(imageData) {
 
-            $scope.images[0] = {image: imageData};
-            $scope.images[0].$id = "images";
-            $scope.images.$save(0).then(function() {
-                alert("Image has been uploaded");
-            });
+             $scope.profile.images = {profilePic: imageData};
         }, function(error) {
             console.error(error);
         });
@@ -172,6 +156,7 @@ angular.module('starter.controllers', [])
     firebase.auth().signOut().then(function() {
       console.log("logged out");
       $scope.watch.clearWatch();
+      $scope.profile.images.profilePic = null;
 
 
     }, function(error) {
