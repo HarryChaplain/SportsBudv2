@@ -1,9 +1,10 @@
 angular.module('starter.controllers', [])
 
-.controller('DiscoverCtrl', function($scope, $timeout, User, $state, Auth, $firebaseArray, $timeout, $cordovaGeolocation) {
+.controller('DiscoverCtrl', function($scope, $timeout, User, $state, Auth, $firebaseArray, $timeout, $cordovaGeolocation, Profile, Matches) {
 
   $scope.auth = Auth;
   $scope.profiles = [];
+
   //$scope.phPics = ['img/adam.jpg', 'img/perry.png', 'img/mike.png', 'img/max.png', 'img/ben.png'];
 
   $scope.auth.$onAuthStateChanged(function(firebaseUser) {
@@ -12,6 +13,10 @@ angular.module('starter.controllers', [])
         var profiles = $firebaseArray(ref);
         $scope.firebaseUser = firebaseUser;
         $scope.user = firebaseUser.email;
+        $scope.profile = Profile(firebaseUser.uid);
+
+
+
         $scope.profiles = profiles;
         $scope.watch = $cordovaGeolocation.watchPosition();
         $scope.watch.then(
@@ -42,7 +47,21 @@ angular.module('starter.controllers', [])
 
     $scope.sendFeedback = function (bool) {
 
-      if(bool) User.addOppToMatches($scope.currentOpp);
+      if(bool) {
+        User.addOppToMatches();
+
+        $scope.matches = Matches($scope.firebaseUser.uid,$scope.currentOpp.$id);
+
+        //$scope.profile.matches = $scope.currentOpp.$id;
+        //$scope.profile.matches[$scope.currentOpp.$id] = $scope.currentOpp;
+        //console.log(matches);
+
+        $scope.merge = angular.extend($scope.matches, $scope.currentOpp)
+
+        $scope.matches = $scope.merge;
+        $scope.matches.$save();
+        $scope.matches = null;
+      }
 
       $scope.currentOpp.rated = bool;
       $scope.currentOpp.hide = true;
@@ -84,7 +103,6 @@ angular.module('starter.controllers', [])
 })
 .controller('TabsCtrl', function($scope, User) {
 
-  $scope.matchCount = User.matchesCount;
 
   $scope.enteringMatches = function(){
     User.newMatches = 0;
@@ -92,7 +110,7 @@ angular.module('starter.controllers', [])
 
 })
 
-.controller('AccountCtrl', function($scope, User, $state, Auth, Profile, $cordovaGeolocation, $cordovaCamera) {
+.controller('AccountCtrl', function($scope, User, $state, Auth, Profile, $cordovaGeolocation, $cordovaCamera, $timeout) {
 
   $scope.auth = Auth;
 
@@ -117,6 +135,10 @@ angular.module('starter.controllers', [])
       $state.go('login');
     };
   });
+
+  $timeout(function(){
+    console.log($scope.profile);
+  }, 5000);
 
   $scope.upload = function() {
 
@@ -169,7 +191,7 @@ angular.module('starter.controllers', [])
 
 })
 
-.controller('LoginCtrl', ['$scope', 'Auth', "$state", function($scope, Auth, $state) {
+.controller('LoginCtrl',  function($scope, Auth, $state, Profile) {
 
   $scope.signIn = function() {
     $scope.message = null;
@@ -191,6 +213,7 @@ angular.module('starter.controllers', [])
     $scope.message = null;
     $scope.error = null;
 
+
     Auth.$createUserWithEmailAndPassword($scope.email, $scope.password)
       .then(function(firebaseUser) {
         $scope.message = "User created with email: " + firebaseUser.email;
@@ -200,28 +223,34 @@ angular.module('starter.controllers', [])
         $scope.error = error;
       });
     };
+
+
   }
 
 
-])
+)
 
 
-.controller('MatchesCtrl', function($scope, User, Auth, $state) {
+.controller('MatchesCtrl', function($scope, User, Auth, $state, $firebaseArray, $timeout) {
 
   $scope.auth = Auth;
 
   $scope.auth.$onAuthStateChanged(function(firebaseUser) {
     if(firebaseUser){
       console.log("logged in");
+      var ref = firebase.database().ref("Matches").child(firebaseUser.uid);
+      var matches = $firebaseArray(ref);
+      $scope.matches = matches;
     }else{
     $state.go('login');
     };
   });
 
-  $scope.matches = User.matches;
+  //$scope.matches = User.matches;
+
 
 
   $scope.removeOpp = function(opponent, index){
-    User.removeOppFromMatches(opponent, index);
+    $scope.matches.$remove(index);
   }
 });

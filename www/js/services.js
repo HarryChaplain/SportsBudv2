@@ -7,15 +7,16 @@ angular.module('starter.services', ['firebase'])
     newMatches: 0
   }
 
+  o.getMatches = function(){
+    return o.matches;
+  }
+
   o.matchesCount = function() {
     return o.newMatches;
   }
 
-  o.addOppToMatches = function(opponent) {
+  o.addOppToMatches = function() {
 
-    if(!opponent) return false;
-
-    o.matches.unshift(opponent);
     o.newMatches++;
   }
 
@@ -36,6 +37,19 @@ angular.module('starter.services', ['firebase'])
     return $firebaseAuth();
   }
 ])
+
+.factory("Matches", function($firebaseObject) {
+    return function(username, matchID) {
+      // create a reference to the database node where we will store our data
+      var ref = firebase.database().ref("Matches");
+      var matchesRef = ref.child(username).child(matchID);
+
+      // return it as a synchronized object
+      return $firebaseObject(matchesRef);
+    }
+  }
+)
+
 
 .factory("Profile", function($firebaseObject) {
     return function(username) {
