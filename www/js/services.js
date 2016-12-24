@@ -34,6 +34,15 @@ angular.module('starter.services', ['firebase'])
     m.matches.$remove(index);
   }
 
+  m.getSpecificMat = function(oppId){
+    for (var i = 0; i < m.matches.length; i++) {
+        if (m.matches[i].$id === oppId) {
+          return m.matches[i];
+        }
+      }
+      return null;
+  }
+
   return m;
   }
 )
@@ -57,6 +66,26 @@ angular.module('starter.services', ['firebase'])
 
 
   return opp;
+  }
+)
+
+.factory("Messages", function($firebaseArray) {
+
+  var messages = [];
+
+  var ref = firebase.database().ref("Messages");
+  messages = $firebaseArray(ref);
+
+
+  messages.getMessages = function(){
+
+    return messages;
+  }
+
+  messages.sendMessage = function(message){
+    messages.$add(message);
+  }
+  return messages;
   }
 )
 

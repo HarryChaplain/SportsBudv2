@@ -1,0 +1,26 @@
+<ion-view view-title="{{opponent.firstname}}">
+  <ion-content class="padding">
+    <img ng-src="data:image/jpeg;base64,{{opponent.images.profilePic}}" style="width: 64px; height: 64px">
+    <p>
+      {{opponent.sport}}
+    </p>
+
+    <ul class="chatbox">
+    <!-- arrays are fully sortable and filterable -->
+    <li ng-repeat="message in currentMessages">
+      {{ message.content }}
+
+      <!-- delete a message using $remove -->
+
+    </li>
+  </ul>
+
+
+    <label class="item item-input">
+      <input type="text" placeholder="Message..." ng-model="message.content">
+    </label>
+    <div>
+      <input type="button" class="button button-block button-positive" value="Send" ng-click="sendMessage()">
+    </div>
+  </ion-content>
+</ion-view>
