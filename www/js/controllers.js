@@ -1,12 +1,13 @@
 angular.module('starter.controllers', [])
 
-.controller('DiscoverCtrl', function($scope, $timeout, $state, Auth, $firebaseArray, $timeout, $cordovaGeolocation, Profile, Matches, Opponents) {
+.controller('DiscoverCtrl', function($scope, $timeout, $state, Auth, $firebaseArray, $cordovaGeolocation, Profile, Matches, Opponents) {
 
   $scope.auth = Auth;
   var i = 0;
 
   $scope.auth.$onAuthStateChanged(function(firebaseUser) {
     if(firebaseUser){
+        i=0;
         $scope.firebaseUser = firebaseUser;
         $scope.watch = $cordovaGeolocation.watchPosition();
         $scope.watch.then(
@@ -34,7 +35,13 @@ angular.module('starter.controllers', [])
 
       $scope.opponents.$loaded()
         .then(function(data){
-          $scope.currentOpp = angular.copy(data[0]);
+          if(data[i].$id != $scope.firebaseUser.uid){
+            $scope.currentOpp = angular.copy(data[i]);
+          }else {
+            ++i;
+            $scope.currentOpp = angular.copy(data[i]);
+          }
+
           $scope.calcDistance($scope.currentLat, $scope.currentLong, $scope.currentOpp.lat, $scope.currentOpp.long);
         })
         .catch(function(error){
@@ -44,6 +51,7 @@ angular.module('starter.controllers', [])
     }
 
     $scope.reload = function(){
+      i = 0;
       $scope.opponents.$destroy();
       $scope.currentOpp = null;
       $scope.load();
@@ -61,8 +69,12 @@ angular.module('starter.controllers', [])
       $timeout(function(){
           i = i + 1;
           i = i % $scope.opponents.length;
-          if($scope.opponents[i])
+          if($scope.opponents[i] && $scope.opponents[i].$id != $scope.firebaseUser.uid)
           {
+            $scope.currentOpp = angular.copy($scope.opponents[i]);
+            $scope.calcDistance($scope.currentLat, $scope.currentLong, $scope.currentOpp.lat, $scope.currentOpp.long);
+          }else{
+            ++i;
             $scope.currentOpp = angular.copy($scope.opponents[i]);
             $scope.calcDistance($scope.currentLat, $scope.currentLong, $scope.currentOpp.lat, $scope.currentOpp.long);
           }
@@ -150,7 +162,7 @@ angular.module('starter.controllers', [])
 
 
   $scope.saveProfile = function() {
-    
+
     $scope.profile.$save().then(function() {
         alert('Profile saved!');
       }).catch(function(error) {
