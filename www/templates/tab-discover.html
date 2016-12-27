@@ -1,5 +1,10 @@
 <ion-view view-title="Discover" class="tab-discover-page">
+    <ion-nav-buttons side="right">
+        <button class="button icon ion-refresh" ng-click="reload()">
+        </button>
+    </ion-nav-buttons>
   <ion-content class="padding" scroll="false">
+
 
 
 
@@ -29,6 +34,5 @@
 
     </div>
     <ion-spinner class="spinner" ng-show="!currentOpp" icon="lines" ></ion-spinner>
-
   </ion-content>
 </ion-view>

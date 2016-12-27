@@ -27,6 +27,15 @@ angular.module('starter.services', ['firebase'])
     var matchesRef = ref.child(currentUser);
     m.matches = $firebaseArray(matchesRef);
 
+    m.matches.$loaded()
+      .then(function(data){
+        return data;
+      })
+      .catch(function(error){
+        console.log(error);
+        return null;
+      });
+
     return m.matches;
   }
 
@@ -49,23 +58,19 @@ angular.module('starter.services', ['firebase'])
 
 .factory("Opponents", function($firebaseArray) {
 
-  var opp = {
-    opponents: []
-  };
+  var opponents = [];
 
   var ref = firebase.database().ref("Profile");
 
 
 
-  opp.getOpponents = function(){
-    opp.opponents = $firebaseArray(ref);
-
-
-    return opp.opponents;
+  opponents.getOpponents = function(){
+    opponents = [];
+    opponents = $firebaseArray(ref);
+    return opponents;
   }
 
-
-  return opp;
+  return opponents;
   }
 )
 
@@ -85,6 +90,7 @@ angular.module('starter.services', ['firebase'])
   messages.sendMessage = function(message){
     messages.$add(message);
   }
+
   return messages;
   }
 )
@@ -103,6 +109,7 @@ angular.module('starter.services', ['firebase'])
     // return it as a synchronized object
     return profile;
     }
+
 
 
   return profile;

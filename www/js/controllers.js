@@ -3,13 +3,11 @@ angular.module('starter.controllers', [])
 .controller('DiscoverCtrl', function($scope, $timeout, $state, Auth, $firebaseArray, $timeout, $cordovaGeolocation, Profile, Matches, Opponents) {
 
   $scope.auth = Auth;
-
-  //$scope.phPics = ['img/adam.jpg', 'img/perry.png', 'img/mike.png', 'img/max.png', 'img/ben.png'];
+  var i = 0;
 
   $scope.auth.$onAuthStateChanged(function(firebaseUser) {
     if(firebaseUser){
         $scope.firebaseUser = firebaseUser;
-        $scope.opponents = Opponents.getOpponents();
         $scope.watch = $cordovaGeolocation.watchPosition();
         $scope.watch.then(
           null,
@@ -20,9 +18,10 @@ angular.module('starter.controllers', [])
             $scope.currentLat  = position.coords.latitude;
             $scope.currentLong = position.coords.longitude;
         });
+        $scope.load();
 
     }else{
-        $scope.opponents = [];
+        $scope.opponents.$destroy();
         $scope.watch.clearWatch();
         $state.go('login');
         console.log("logged out");
@@ -30,15 +29,26 @@ angular.module('starter.controllers', [])
       };
   });
 
-  $timeout(function () {
+    $scope.load = function() {
+      $scope.opponents = Opponents.getOpponents();
 
-    var i = 0;
+      $scope.opponents.$loaded()
+        .then(function(data){
+          $scope.currentOpp = angular.copy(data[0]);
+          $scope.calcDistance($scope.currentLat, $scope.currentLong, $scope.currentOpp.lat, $scope.currentOpp.long);
+        })
+        .catch(function(error){
+          console.log(error);
+          return null;
+        });
+    }
 
-    //console.log($scope.opponents);
+    $scope.reload = function(){
+      $scope.opponents.$destroy();
+      $scope.currentOpp = null;
+      $scope.load();
+    }
 
-    $scope.currentOpp = angular.copy($scope.opponents[0]);
-
-    $scope.calcDistance($scope.currentLat, $scope.currentLong, $scope.currentOpp.lat, $scope.currentOpp.long);
 
     $scope.sendFeedback = function (bool) {
 
@@ -56,11 +66,11 @@ angular.module('starter.controllers', [])
             $scope.currentOpp = angular.copy($scope.opponents[i]);
             $scope.calcDistance($scope.currentLat, $scope.currentLong, $scope.currentOpp.lat, $scope.currentOpp.long);
           }
-        }, 250);
+      }, 250);
 
-      }
+    }
 
-    }, 4000);
+
 
     $scope.calcDistance = function(lat1,lon1,lat2,lon2) {
       var R = 6371; // Radius of the earth in km
@@ -77,11 +87,11 @@ angular.module('starter.controllers', [])
       }else{
         $scope.distance = Math.round(d);
       }
-  }
+    }
 
-  function deg2rad(deg) {
-    return deg * (Math.PI/180)
-  }
+    function deg2rad(deg) {
+      return deg * (Math.PI/180)
+    }
 
 })
 .controller('TabsCtrl', function($scope) {
@@ -89,7 +99,7 @@ angular.module('starter.controllers', [])
 
 })
 
-.controller('AccountCtrl', function($scope, $state, Auth, Profile, $cordovaGeolocation, $cordovaCamera, $timeout) {
+.controller('AccountCtrl', function($scope, $state, Auth, Profile, $cordovaGeolocation, $cordovaCamera, $timeout, Opponents, Messages) {
 
   $scope.auth = Auth;
 
@@ -109,6 +119,7 @@ angular.module('starter.controllers', [])
       });
 
     }else{
+      $scope.profile.$destroy();
       $state.go('login');
     };
   });
@@ -139,6 +150,7 @@ angular.module('starter.controllers', [])
 
 
   $scope.saveProfile = function() {
+    
     $scope.profile.$save().then(function() {
         alert('Profile saved!');
       }).catch(function(error) {
@@ -151,8 +163,7 @@ angular.module('starter.controllers', [])
     firebase.auth().signOut().then(function() {
       console.log("logged out");
       $scope.watch.clearWatch();
-      $scope.profile.images.profilePic = null;
-
+      $scope.profile.$destroy();
 
     }, function(error) {
       console.log(error);
@@ -210,8 +221,9 @@ angular.module('starter.controllers', [])
     if(firebaseUser){
       $scope.matches = Matches.getMatches(firebaseUser.uid);
     }else{
-    $state.go('login');
-    $scope.matches = null;
+      $scope.matches.$destroy();
+      $state.go('login');
+      $scope.matches = null;
     };
   });
 
@@ -219,7 +231,7 @@ angular.module('starter.controllers', [])
     Matches.removeMatch(index);
   }
 })
-.controller('ChatCtrl', function($scope, $stateParams, Matches, Auth, Messages, $timeout) {
+.controller('ChatCtrl', function($scope, $stateParams, Matches, Auth, Messages, $timeout, $state) {
 
   $scope.auth = Auth;
   $scope.allMessages = [];
@@ -228,7 +240,9 @@ angular.module('starter.controllers', [])
     if(firebaseUser){
         $scope.message.from = firebaseUser.uid;
         $scope.allMessages = Messages.getMessages();
+
     }else{
+        $scope.allMessages.$destroy();
         $state.go('login');
         console.log("logged out");
 
@@ -239,14 +253,14 @@ angular.module('starter.controllers', [])
   $timeout(function () {
 
     $scope.currentMessages = [];
-  for(var i = 0; i < $scope.allMessages.length; i++){
+    for(var i = 0; i < $scope.allMessages.length; i++){
 
     if(($scope.allMessages[i].from === $stateParams.chatId && $scope.allMessages[i].to === $scope.message.from) || ($scope.allMessages[i].to === $stateParams.chatId && $scope.allMessages[i].from === $scope.message.from)){
       $scope.currentMessages.push($scope.allMessages[i]);
       console.log($scope.currentMessages);
     }
   }
-}, 4000)
+  }, 4000)
 
   $scope.opponent = Matches.getSpecificMat($stateParams.chatId);
 
