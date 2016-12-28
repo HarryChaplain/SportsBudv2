@@ -99,4 +99,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/tab/discover');
 
+})
+
+.directive('hideTabs', function($rootScope) {
+    return {
+        restrict: 'A',
+        link: function($scope, $el) {
+            $rootScope.hideTabs = true;
+            $scope.$on('$destroy', function() {
+                $rootScope.hideTabs = false;
+            });
+        }
+    };
 });

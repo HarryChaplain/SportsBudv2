@@ -46,7 +46,6 @@ angular.module('starter.controllers', [])
         })
         .catch(function(error){
           console.log(error);
-          return null;
         });
     }
 
@@ -68,7 +67,7 @@ angular.module('starter.controllers', [])
       $scope.currentOpp.hide = true;
       $timeout(function(){
           i = i + 1;
-          i = i % $scope.opponents.length;
+          i = i % ($scope.opponents.length - 1);
           if($scope.opponents[i] && $scope.opponents[i].$id != $scope.firebaseUser.uid)
           {
             $scope.currentOpp = angular.copy($scope.opponents[i]);
@@ -234,6 +233,7 @@ angular.module('starter.controllers', [])
       $scope.matches = Matches.getMatches(firebaseUser.uid);
     }else{
       $scope.matches.$destroy();
+      Matches.logout();
       $state.go('login');
       $scope.matches = null;
     };
@@ -243,45 +243,65 @@ angular.module('starter.controllers', [])
     Matches.removeMatch(index);
   }
 })
-.controller('ChatCtrl', function($scope, $stateParams, Matches, Auth, Messages, $timeout, $state) {
+.controller('ChatCtrl', function($scope, $stateParams, Matches, Auth, Messages, $state, Profile) {
+
 
   $scope.auth = Auth;
   $scope.allMessages = [];
   $scope.currentMessages = [];
   $scope.auth.$onAuthStateChanged(function(firebaseUser) {
-    if(firebaseUser){
-        $scope.message.from = firebaseUser.uid;
-        $scope.allMessages = Messages.getMessages();
+    if(firebaseUser && $stateParams.chatId){
+        $scope.opponent = Profile.getProfile($stateParams.chatId);
+        console.log($stateParams.chatId);
+        $scope.message.fromID = firebaseUser.uid;
+        $scope.currentUser = Profile.getProfile(firebaseUser.uid);
+        $scope.loadMessages();
 
     }else{
         $scope.allMessages.$destroy();
-        $state.go('login');
+        $scope.currentUser.$destroy();
+        $scope.opponent.$destroy();
+        $stateParams.chatId = null;
+        //Messages.logout();
+        //$state.go('login');
         console.log("logged out");
 
       };
   });
 
+  $scope.loadMessages = function(){
+    $scope.allMessages = Messages.getMessages();
+    $scope.allMessages.$loaded()
+      .then(function(data){
+        console.log(data);
 
-  $timeout(function () {
+        for(var i = 0; i < data.length; i++){
 
-    $scope.currentMessages = [];
-    for(var i = 0; i < $scope.allMessages.length; i++){
+          if((data[i].fromID === $stateParams.chatId && data[i].toID === $scope.message.fromID) || (data[i].toID === $stateParams.chatId && data[i].fromID === $scope.message.fromID)){
+            $scope.currentMessages.push($scope.allMessages[i]);
+          }
+        }
+        console.log($scope.currentMessages);
+      })
+      .catch(function(error){
+        console.log(error);
+      });
 
-    if(($scope.allMessages[i].from === $stateParams.chatId && $scope.allMessages[i].to === $scope.message.from) || ($scope.allMessages[i].to === $stateParams.chatId && $scope.allMessages[i].from === $scope.message.from)){
-      $scope.currentMessages.push($scope.allMessages[i]);
-      console.log($scope.currentMessages);
-    }
   }
-  }, 4000)
 
-  $scope.opponent = Matches.getSpecificMat($stateParams.chatId);
+
 
     $scope.message = {};
-    $scope.message.to = $stateParams.chatId;
+    $scope.message.toID = $stateParams.chatId;
 
 
   $scope.sendMessage = function() {
+    $scope.message.from = $scope.currentUser.firstname;
+
     Messages.sendMessage($scope.message);
-    $scope.currentMessages.push($scope.message);
+    $scope.allMessages = [];
+    $scope.currentMessages = [];
+    $scope.loadMessages();
+    $scope.message = '';
   }
 });

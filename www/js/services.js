@@ -21,21 +21,13 @@ angular.module('starter.services', ['firebase'])
     m.matches = $firebaseObject(addMatchRef);
     m.matches = angular.extend(m.matches, currentOpp);
     m.matches.$save();
+    var matchesRef = ref.child(currentUser);
+    m.matches = $firebaseArray(matchesRef);
     }
 
   m.getMatches = function(currentUser){
     var matchesRef = ref.child(currentUser);
     m.matches = $firebaseArray(matchesRef);
-
-    m.matches.$loaded()
-      .then(function(data){
-        return data;
-      })
-      .catch(function(error){
-        console.log(error);
-        return null;
-      });
-
     return m.matches;
   }
 
@@ -50,6 +42,10 @@ angular.module('starter.services', ['firebase'])
         }
       }
       return null;
+  }
+
+  m.logout = function(){
+    m.matches.$destroy();
   }
 
   return m;
@@ -78,17 +74,22 @@ angular.module('starter.services', ['firebase'])
 
   var messages = [];
 
-  var ref = firebase.database().ref("Messages");
-  messages = $firebaseArray(ref);
+
 
 
   messages.getMessages = function(){
+    var ref = firebase.database().ref("Messages");
+    messages = $firebaseArray(ref);
 
     return messages;
   }
 
   messages.sendMessage = function(message){
     messages.$add(message);
+  }
+
+  messages.logout = function(){
+    messages.$destroy();
   }
 
   return messages;
@@ -110,6 +111,9 @@ angular.module('starter.services', ['firebase'])
     return profile;
     }
 
+  profile.getFirstname = function(){
+    return  profile.firstname;
+  }
 
 
   return profile;
