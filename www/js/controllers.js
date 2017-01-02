@@ -66,10 +66,11 @@ angular.module('starter.controllers', [])
       $scope.currentOpp.rated = bool;
       $scope.currentOpp.hide = true;
       $timeout(function(){
-          i = i + 1;
-          i = i % ($scope.opponents.length - 1);
-          if($scope.opponents[i] && $scope.opponents[i].$id != $scope.firebaseUser.uid)
+        ++i;
+        i = i % ($scope.opponents.length);
+        if($scope.opponents[i] && $scope.opponents[i].$id != $scope.firebaseUser.uid)
           {
+
             $scope.currentOpp = angular.copy($scope.opponents[i]);
             $scope.calcDistance($scope.currentLat, $scope.currentLong, $scope.currentOpp.lat, $scope.currentOpp.long);
           }else{
@@ -243,7 +244,7 @@ angular.module('starter.controllers', [])
     Matches.removeMatch(index);
   }
 })
-.controller('ChatCtrl', function($scope, $stateParams, Matches, Auth, Messages, $state, Profile) {
+.controller('ChatCtrl', function($scope, $stateParams, Matches, Auth, Messages, $state, Profile, $ionicScrollDelegate) {
 
 
   $scope.auth = Auth;
@@ -252,7 +253,7 @@ angular.module('starter.controllers', [])
   $scope.auth.$onAuthStateChanged(function(firebaseUser) {
     if(firebaseUser && $stateParams.chatId){
         $scope.opponent = Profile.getProfile($stateParams.chatId);
-        console.log($stateParams.chatId);
+        //console.log($stateParams.chatId);
         $scope.message.fromID = firebaseUser.uid;
         $scope.currentUser = Profile.getProfile(firebaseUser.uid);
         $scope.loadMessages();
@@ -273,15 +274,16 @@ angular.module('starter.controllers', [])
     $scope.allMessages = Messages.getMessages();
     $scope.allMessages.$loaded()
       .then(function(data){
-        console.log(data);
-
         for(var i = 0; i < data.length; i++){
 
           if((data[i].fromID === $stateParams.chatId && data[i].toID === $scope.message.fromID) || (data[i].toID === $stateParams.chatId && data[i].fromID === $scope.message.fromID)){
             $scope.currentMessages.push($scope.allMessages[i]);
+            console.log($scope.allMessages[i].to);
           }
         }
-        console.log($scope.currentMessages);
+        $ionicScrollDelegate.scrollBottom();
+        console.log($scope.currentUser.firstname);
+
       })
       .catch(function(error){
         console.log(error);
@@ -298,10 +300,13 @@ angular.module('starter.controllers', [])
   $scope.sendMessage = function() {
     $scope.message.from = $scope.currentUser.firstname;
 
-    Messages.sendMessage($scope.message);
+    if ($scope.message.content) {
+      Messages.sendMessage($scope.message);
+    }
+
     $scope.allMessages = [];
     $scope.currentMessages = [];
     $scope.loadMessages();
-    $scope.message = '';
+    $scope.message.content = '';
   }
 });

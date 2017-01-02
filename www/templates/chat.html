@@ -1,31 +1,50 @@
-<ion-view view-title="{{opponent.firstname}}" hide-tabs>
+<ion-view hide-tabs>
+  <ion-nav-title>
+    <p>
+      <i class="ion-ios-chatboxes"></i>
+      {{opponent.firstname}}
+    </p>
+    </ion-nav-title>
   <ion-nav-back-button>
   </ion-nav-back-button>
-  <ion-content class="padding">
-    <img ng-src="data:image/jpeg;base64,{{opponent.images.profilePic}}" style="width: 64px; height: 64px">
-    <p>
-      {{opponent.sport}}
-    </p>
-
-    <ul class="chatbox">
-    <!-- arrays are fully sortable and filterable -->
-    <li ng-repeat="message in currentMessages">
-      <p>{{ message.from }}:   {{ message.content }}</p>
-
-      <!-- delete a message using $remove -->
-
-    </li>
-  </ul>
-
-
-    <label class="item item-input">
-      <input type="text" placeholder="Message..." ng-model="message.content">
-    </label>
-    <div>
-      <input type="button" class="button button-block button-positive" value="Send" ng-click="sendMessage()">
+  <ion-header-bar class="bar bar-subheader" align-title="center">
+    <h1 class="title padding-top padding-left">
+      Wants to play {{opponent.sport}}
+    </h1>
+    <div class="item-avatar  padding-left padding-bottom" >
+      <img ng-src="data:image/jpeg;base64,{{opponent.images.profilePic}}">
     </div>
+  </ion-header-bar>
+  <ion-content class="padding">
+
+
+      <ion-list ng-repeat="message in currentMessages">
+        <div class="padding-top">
+          <ion-item class="col col-50 item-text-wrap border-rad" ng-if="message.fromID == opponent.$id" style="background-color: #dbddde !important">
+                <text>{{ message.from }}:   {{ message.content }}</text>
+          </ion-item>
+
+
+
+          <ion-item class="col col-50 col-offset-50 item-text-wrap border-rad" ng-if="message.fromID == currentUser.$id" style="background-color: #387ef5 !important" >
+              <text class="stable">{{ message.from }}:   {{ message.content }}</text>
+          </ion-item>
+        </div>
+
+
+
+      </ion-list>
 
 
   </ion-content>
+
+  <ion-footer-bar class="bar-positive foot item-input-inset" keyboard-attach>
+
+    <label class="item-input-wrapper">
+      <input  type="text" placeholder="Message..." ng-model="message.content">
+    </label>
+    <button class="button icon ion-ios-chatboxes" ng-click="sendMessage()"></button>
+
+  </ion-footer-bar>
 
 </ion-view>

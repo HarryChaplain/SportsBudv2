@@ -1,5 +1,25 @@
 /* Discover page stylings */
 
+.border-rad{
+  border: 0px;
+  border-radius: 10px !important;
+}
+.bar-subheader{
+  height: 65px !important;
+}
+
+.has-subheader{
+  top: 130px !important;
+}
+
+.foot{
+  height: 50px !important;
+}
+
+.item-content {
+  background-color:#ffffff;
+}
+
 .spinner svg{
   display: block;
   margin: auto;
