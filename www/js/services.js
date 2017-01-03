@@ -1,9 +1,7 @@
 angular.module('starter.services', ['firebase'])
 
 
-.factory("Auth",
-  function($firebaseAuth) {
-
+.factory("Auth", function($firebaseAuth) {
     return $firebaseAuth();
   }
 )
@@ -23,7 +21,7 @@ angular.module('starter.services', ['firebase'])
     m.matches.$save();
     var matchesRef = ref.child(currentUser);
     m.matches = $firebaseArray(matchesRef);
-    }
+  }
 
   m.getMatches = function(currentUser){
     var matchesRef = ref.child(currentUser);
@@ -49,16 +47,13 @@ angular.module('starter.services', ['firebase'])
   }
 
   return m;
-  }
-)
+})
 
 .factory("Opponents", function($firebaseArray) {
 
   var opponents = [];
 
   var ref = firebase.database().ref("Profile");
-
-
 
   opponents.getOpponents = function(){
     opponents = [];
@@ -73,9 +68,6 @@ angular.module('starter.services', ['firebase'])
 .factory("Messages", function($firebaseArray) {
 
   var messages = [];
-
-
-
 
   messages.getMessages = function(){
     var ref = firebase.database().ref("Messages");
@@ -101,7 +93,6 @@ angular.module('starter.services', ['firebase'])
 
   var profile = {};
 
-
   profile.getProfile = function(userID) {
     // create a reference to the database node where we will store our data
     var ref = firebase.database().ref("Profile");
@@ -114,7 +105,6 @@ angular.module('starter.services', ['firebase'])
   profile.getFirstname = function(){
     return  profile.firstname;
   }
-
 
   return profile;
   }

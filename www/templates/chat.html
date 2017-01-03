@@ -1,12 +1,11 @@
 <ion-view hide-tabs>
   <ion-nav-title>
-    <p>
       <i class="ion-ios-chatboxes"></i>
       {{opponent.firstname}}
-    </p>
-    </ion-nav-title>
+  </ion-nav-title>
   <ion-nav-back-button>
   </ion-nav-back-button>
+
   <ion-header-bar class="bar bar-subheader" align-title="center">
     <h1 class="title padding-top padding-left">
       Wants to play {{opponent.sport}}
@@ -15,26 +14,22 @@
       <img ng-src="data:image/jpeg;base64,{{opponent.images.profilePic}}">
     </div>
   </ion-header-bar>
+
   <ion-content class="padding">
 
-
-      <ion-list ng-repeat="message in currentMessages">
+      <ion-list ng-repeat="message in allMessages">
         <div class="padding-top">
-          <ion-item class="col col-50 item-text-wrap border-rad" ng-if="message.fromID == opponent.$id" style="background-color: #dbddde !important">
-                <text>{{ message.from }}:   {{ message.content }}</text>
+
+          <ion-item class="col col-50 item-text-wrap border-rad" ng-if="message.fromID == opponent.$id && message.toID == currentUser.$id" style="background-color: #dbddde !important">
+              <text>{{ message.from }}:   {{ message.content }}</text>
+              {{scrollBottom()}}
           </ion-item>
-
-
-
-          <ion-item class="col col-50 col-offset-50 item-text-wrap border-rad" ng-if="message.fromID == currentUser.$id" style="background-color: #387ef5 !important" >
+          <ion-item class="col col-50 col-offset-50 item-text-wrap border-rad" ng-if="message.fromID == currentUser.$id && message.toID == opponent.$id" style="background-color: #387ef5 !important" >
               <text class="stable">{{ message.from }}:   {{ message.content }}</text>
+              {{scrollBottom()}}
           </ion-item>
         </div>
-
-
-
       </ion-list>
-
 
   </ion-content>
 
