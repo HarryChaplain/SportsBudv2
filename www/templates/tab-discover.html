@@ -5,10 +5,11 @@
     </ion-nav-buttons>
   <ion-content class="padding" scroll="false">
 
-    <div class="list card current-opp" ng-class="{skipped: currentOpp.rated == false, favorited: currentOpp.rated == true}" ng-show="currentOpp && !currentOpp.hide">
+
+    <div class="list card current-opp" ng-class="{skipped: currentOpp.rated == false, favorited: currentOpp.rated == true}"  ng-show="currentOpp && !currentOpp.hide">
 
 
-      <div class="item item-image">
+      <div  class="item item-image">
         <img ng-show="currentOpp.images.profilePic" ng-src="data:image/jpeg;base64,{{ currentOpp.images.profilePic }}">
       </div>
 
@@ -29,6 +30,7 @@
       </div>
 
     </div>
-    <ion-spinner class="spinner" ng-show="!currentOpp" icon="lines" ></ion-spinner>
+    <ion-spinner class="spinner" ng-if="currentOpp == undefirned" ng-show="!currentOpp" icon="lines" ></ion-spinner>
+    <h4 align="center" class="spinner">{{message}}</h4>
   </ion-content>
 </ion-view>

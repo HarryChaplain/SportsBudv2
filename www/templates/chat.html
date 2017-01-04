@@ -18,8 +18,7 @@
   <ion-content class="padding">
 
       <ion-list ng-repeat="message in allMessages">
-        <div class="padding-top">
-
+        <div class="padding-top" ng-if="message.fromID == opponent.$id && message.toID == currentUser.$id">
           <ion-item class="col col-50 item-text-wrap border-rad" ng-if="message.fromID == opponent.$id && message.toID == currentUser.$id" style="background-color: #dbddde !important">
               <text>{{ message.from }}:   {{ message.content }}</text>
               {{scrollBottom()}}

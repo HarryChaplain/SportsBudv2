@@ -1,5 +1,13 @@
 /* Discover page stylings */
+.profilepic{
 
+  width: 65%;
+  height: 65%;
+}
+
+.profilepic-border{
+  background:  #a3a3a3 ;
+}
 .border-rad{
   border: 0px;
   border-radius: 10px !important;

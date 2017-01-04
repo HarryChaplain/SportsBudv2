@@ -42,9 +42,6 @@ angular.module('starter.services', ['firebase'])
       return null;
   }
 
-  m.logout = function(){
-    m.matches.$destroy();
-  }
 
   return m;
 })
@@ -59,6 +56,10 @@ angular.module('starter.services', ['firebase'])
     opponents = [];
     opponents = $firebaseArray(ref);
     return opponents;
+  }
+
+  opponents.destroy = function(){
+    opponents.$destroy();
   }
 
   return opponents;
@@ -105,6 +106,8 @@ angular.module('starter.services', ['firebase'])
   profile.getFirstname = function(){
     return  profile.firstname;
   }
+
+
 
   return profile;
   }

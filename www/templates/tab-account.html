@@ -1,10 +1,13 @@
 <ion-view view-title="Account">
   <ion-content class="padding">
         <ul class="list">
-          <div >
-                <img ng-src="data:image/jpeg;base64,{{profile.images.profilePic}}" width="100%" />
-            </div>
-            <button class="button button-block button-positive padding" ng-click="upload()">Edit Profile Piture</button>
+          <div class="item profilepic-border" align="center">
+                <img class="profilepic padding-bottom" ng-src="data:image/jpeg;base64,{{profile.images.profilePic}}" ng-click="upload()">
+                </img>
+                <br>
+                <button class="button icon ion-camera" ng-click="upload()"> Edit Picture</button>
+          </div>
+
           <div class="item item-divider">
             <h2>Profile:</h2>
           </div>

@@ -3,13 +3,19 @@ angular.module('starter.controllers', [])
 .controller('DiscoverCtrl', function($scope, $timeout, $state, Auth, $firebaseArray, $cordovaGeolocation, Profile, Matches, Opponents) {
 
   $scope.auth = Auth;
-  var i = 0;
+  var oppCount = 0;
+  $scope.filteredOpps = [];
+  $scope.currentOpp = null;
 
   $scope.auth.$onAuthStateChanged(function(firebaseUser) {
     if(firebaseUser){
-      i=0;
+      oppCount= 0;
       $scope.firebaseUser = firebaseUser;
+      $scope.currentUser = Profile.getProfile(firebaseUser.uid);
       $scope.watch = $cordovaGeolocation.watchPosition();
+      $scope.$on("$ionicView.afterEnter", function() {
+        $scope.reload();
+      });
       $scope.watch.then(
         null,
         function(err) {
@@ -21,7 +27,9 @@ angular.module('starter.controllers', [])
       });
       $scope.load();
     }else{
+      $scope.currentUser.$destroy();
       $scope.opponents.$destroy();
+      Matches.logout();
       $scope.watch.clearWatch();
       $state.go('login');
       console.log("logged out");
@@ -30,17 +38,31 @@ angular.module('starter.controllers', [])
 
   $scope.load = function() {
     $scope.opponents = Opponents.getOpponents();
+    $scope.filteredOpps = [];
 
     $scope.opponents.$loaded()
       .then(function(data){
-        if(data[i].$id != $scope.firebaseUser.uid){
-          $scope.currentOpp = angular.copy(data[i]);
-        }else{
-          ++i;
-          $scope.currentOpp = angular.copy(data[i]);
+
+        for(var i = 0; i < data.length; ++i){
+          $scope.calcDistance($scope.currentLat, $scope.currentLong, data[i].lat, data[i].long);
+          if($scope.distance <= $scope.currentUser.searchDist && $scope.currentUser.sport == data[i].sport){
+            $scope.filteredOpps.push(data[i])
+          }
         }
 
-        $scope.calcDistance($scope.currentLat, $scope.currentLong, $scope.currentOpp.lat, $scope.currentOpp.long);
+        if( $scope.filteredOpps[oppCount] && $scope.filteredOpps[oppCount].$id != $scope.firebaseUser.uid){
+          $scope.currentOpp = angular.copy($scope.filteredOpps[oppCount]);
+          $scope.calcDistance($scope.currentLat, $scope.currentLong, $scope.currentOpp.lat, $scope.currentOpp.long);
+        }else if($scope.filteredOpps[oppCount]){
+          $scope.currentOpp = angular.copy($scope.filteredOpps[oppCount]);
+          $scope.sendFeedback(false);
+        }
+
+        if($scope.filteredOpps[oppCount] == undefined){
+          $scope.message = "No new matches nearby";
+        }else {
+          $scope.message = "";
+        }
       })
       .catch(function(error){
           console.log(error);
@@ -48,8 +70,9 @@ angular.module('starter.controllers', [])
   }
 
   $scope.reload = function(){
-    i = 0;
-    $scope.opponents.$destroy();
+    oppCount = 0;
+    Opponents.destroy();
+    $scope.opponents = null;
     $scope.currentOpp = null;
     $scope.load();
   }
@@ -63,23 +86,23 @@ angular.module('starter.controllers', [])
 
     $scope.currentOpp.rated = bool;
     $scope.currentOpp.hide = true;
+
     $timeout(function(){
-      ++i;
-      i = i % ($scope.opponents.length);
-      if($scope.opponents[i] && $scope.opponents[i].$id != $scope.firebaseUser.uid)
-        {
-          $scope.currentOpp = angular.copy($scope.opponents[i]);
-          $scope.calcDistance($scope.currentLat, $scope.currentLong, $scope.currentOpp.lat, $scope.currentOpp.long);
-        }else{
-          ++i;
-          $scope.currentOpp = angular.copy($scope.opponents[i]);
-          $scope.calcDistance($scope.currentLat, $scope.currentLong, $scope.currentOpp.lat, $scope.currentOpp.long);
+      ++oppCount;
+      oppCount = oppCount % ($scope.filteredOpps.length);
+
+      if($scope.filteredOpps[oppCount] && $scope.filteredOpps[oppCount].$id == $scope.firebaseUser.uid){
+        ++oppCount;
+        if ($scope.filteredOpps[oppCount] == undefined) {
+          $scope.currentOpp = null;
+          return;
         }
+      }
+
+      $scope.currentOpp = angular.copy($scope.filteredOpps[oppCount]);
+      $scope.calcDistance($scope.currentLat, $scope.currentLong, $scope.currentOpp.lat, $scope.currentOpp.long);
     }, 250);
-
   }
-
-
 
   $scope.calcDistance = function(lat1,lon1,lat2,lon2) {
     var R = 6371; // Radius of the earth in km
@@ -92,7 +115,7 @@ angular.module('starter.controllers', [])
     var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     var d = R * c; // Distance in km
     if(d < 1){
-      $scope.distance = "Less than 1";
+      $scope.distance = 1;
     }else{
       $scope.distance = Math.round(d);
     }
@@ -169,6 +192,7 @@ angular.module('starter.controllers', [])
       console.log("logged out");
       $scope.watch.clearWatch();
       $scope.profile.$destroy();
+      $scope.profile.images = {profilePic: null};
     }, function(error) {
       console.log(error);
     });
