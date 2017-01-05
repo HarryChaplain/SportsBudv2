@@ -1,11 +1,9 @@
 <ion-view view-title="Account">
   <ion-content class="padding">
         <ul class="list">
-          <div class="item profilepic-border" align="center">
-                <img class="profilepic padding-bottom" ng-src="data:image/jpeg;base64,{{profile.images.profilePic}}" ng-click="upload()">
-                </img>
-                <br>
-                <button class="button icon ion-camera" ng-click="upload()"> Edit Picture</button>
+          <div class="item item-button-bottom profilepic-border" align="center">
+            <button class="button button-light button-small profilebutton icon ion-edit" ng-click="upload()" ></button>
+	          <img class="profilepic" ng-src="data:image/jpeg;base64,{{profile.images.profilePic}}" ng-click="upload()"></img>
           </div>
 
           <div class="item item-divider">
@@ -36,7 +34,7 @@
 
       <div class="list">
           <div class="item item-divider">
-            <h3>Search Distance(km): {{profile.searchDist}}km</h3>
+            <h3>Search Distance: {{profile.searchDist}}km</h3>
           </div>
 
             <div class="item range range-positive">

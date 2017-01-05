@@ -1,14 +1,24 @@
 /* Discover page stylings */
 
+.profilebutton {
+    z-index: 2;
+    position: absolute;
+    left: 19%;
+    top: 75%;
+    margin: auto;
+}
 
 .profilepic{
-  width: 65%;
-  height: 65%;
+  border:4px solid #dbddde;
+	width: 75%;
+	height: 75%;
 }
 
-.profilepic-border{
-  background:  #a3a3a3 ;
+.profilepic-border {
+	position: relative;
+	background: #a3a3a3;
 }
+
 .border-rad{
   border: 0px;
   border-radius: 10px !important;

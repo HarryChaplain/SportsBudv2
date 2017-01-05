@@ -133,6 +133,9 @@ angular.module('starter.controllers', [])
 .controller('AccountCtrl', function($scope, $state, Auth, Profile, $cordovaGeolocation, $cordovaCamera, $timeout, Opponents, Messages) {
 
   $scope.auth = Auth;
+  $scope.profile = {};
+  $scope.profile.searchDist = 50;
+
 
   $scope.auth.$onAuthStateChanged(function(firebaseUser) {
     if(firebaseUser){
@@ -153,6 +156,8 @@ angular.module('starter.controllers', [])
       $state.go('login');
     };
   });
+
+
 
   $scope.upload = function() {
 
@@ -175,7 +180,7 @@ angular.module('starter.controllers', [])
     });
   }
 
-  $scope.dist = 50;
+
 
 
   $scope.saveProfile = function() {
