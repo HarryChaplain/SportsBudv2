@@ -29,7 +29,6 @@ angular.module('starter.controllers', [])
     }else{
       $scope.currentUser.$destroy();
       $scope.opponents.$destroy();
-      Matches.logout();
       $scope.watch.clearWatch();
       $state.go('login');
       console.log("logged out");
@@ -212,6 +211,7 @@ angular.module('starter.controllers', [])
       $state.go('tab.account');
     }).catch(function(error) {
       $scope.error = error;
+      $scope.password = '';
     });
 
   };
@@ -240,7 +240,6 @@ angular.module('starter.controllers', [])
       $scope.matches = Matches.getMatches(firebaseUser.uid);
     }else{
       $scope.matches.$destroy();
-      Matches.logout();
       $state.go('login');
       $scope.matches = null;
     };
@@ -254,6 +253,8 @@ angular.module('starter.controllers', [])
 
   $scope.auth = Auth;
   $scope.allMessages = [];
+  $scope.filteredMessages = [];
+  $scope.tempMessages = [];
 
   $scope.auth.$onAuthStateChanged(function(firebaseUser) {
     if(firebaseUser && $stateParams.chatId){
@@ -276,7 +277,12 @@ angular.module('starter.controllers', [])
     $scope.allMessages = Messages.getMessages();
     $scope.allMessages.$loaded()
       .then(function(data){
-        $scope.scrollBottom();
+        $scope.filterMessges();
+        $scope.allMessages.$watch(function(event) {
+          if (event.event = "child_added") {
+            $scope.filterMessges();
+          }
+        });
       })
       .catch(function(error){
         console.log(error);
@@ -285,6 +291,18 @@ angular.module('starter.controllers', [])
 
   $scope.scrollBottom = function(){
     $ionicScrollDelegate.scrollBottom();
+  }
+
+  $scope.filterMessges = function(){
+    $scope.tempMessages = [];
+    for(var i = 0; i < $scope.allMessages.length; ++i){
+      if(($scope.allMessages[i].fromID == $scope.opponent.$id && $scope.allMessages[i].toID == $scope.currentUser.$id) || ($scope.allMessages[i].fromID == $scope.currentUser.$id && $scope.allMessages[i].toID == $scope.opponent.$id))
+        $scope.tempMessages.push($scope.allMessages[i])
+
+    }
+    $scope.filteredMessages = $scope.tempMessages;
+    $scope.tempMessages = [];
+
   }
 
   $scope.message = {};

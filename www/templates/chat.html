@@ -17,17 +17,20 @@
 
   <ion-content class="padding">
 
-      <ion-list ng-repeat="message in allMessages">
-        <div class="padding-top" ng-if="message.fromID == opponent.$id && message.toID == currentUser.$id">
-          <ion-item class="col col-50 item-text-wrap border-rad" ng-if="message.fromID == opponent.$id && message.toID == currentUser.$id" style="background-color: #dbddde !important">
-              <text>{{ message.from }}:   {{ message.content }}</text>
-              {{scrollBottom()}}
-          </ion-item>
-          <ion-item class="col col-50 col-offset-50 item-text-wrap border-rad" ng-if="message.fromID == currentUser.$id && message.toID == opponent.$id" style="background-color: #387ef5 !important" >
-              <text class="stable">{{ message.from }}:   {{ message.content }}</text>
-              {{scrollBottom()}}
-          </ion-item>
+      <ion-list ng-repeat="message in filteredMessages" >
+        <div class="padding-bottom">
+          <div class="item col col-50 item-text-wrap border-rad" ng-if="message.fromID == opponent.$id"  style="background-color: #dbddde !important">
+            <text>{{ message.from }}:   {{ message.content }}</text>
+            {{scrollBottom()}}
+          </div>
         </div>
+        <div>
+          <div class="item col col-50 col-offset-50 item-text-wrap border-rad" ng-if="message.fromID == currentUser.$id" style="background-color: #387ef5 !important" >
+            <text class="stable">{{ message.from }}:   {{ message.content }}</text>
+            {{scrollBottom()}}
+          </div>
+        </div>
+
       </ion-list>
 
   </ion-content>
