@@ -53,7 +53,7 @@ angular.module('starter.controllers', [])
   };
 
   $scope.reloadWatch = function(){
-    $scope.$on("$ionicView.afterEnter", function() {
+    $scope.$on("$ionicView.beforeEnter", function() {
         $scope.message = "";
         //delete $scope.opponents
         $scope.currentOpp = null;
