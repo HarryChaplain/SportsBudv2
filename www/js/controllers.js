@@ -1,21 +1,22 @@
 angular.module('starter.controllers', [])
 
-.controller('DiscoverCtrl', function($scope, $timeout, $state, Auth, $firebaseArray, $cordovaGeolocation, Profile, Matches, Opponents) {
+.controller('DiscoverCtrl', function($scope, $timeout, $state, Auth, $firebaseArray, $cordovaGeolocation, Profile, Matches, Opponents, $ionicPopup) {
 
   $scope.auth = Auth;
   var oppCount = 0;
-  $scope.filteredOpps = [];
+  //$scope.filteredOpps = [];
   $scope.currentOpp = null;
 
   $scope.auth.$onAuthStateChanged(function(firebaseUser) {
     if(firebaseUser){
       oppCount= 0;
+
       $scope.firebaseUser = firebaseUser;
       $scope.currentUser = Profile.getProfile(firebaseUser.uid);
+
       $scope.watch = $cordovaGeolocation.watchPosition();
-      $scope.$on("$ionicView.afterEnter", function() {
-        $scope.reload();
-      });
+      $scope.load();
+
       $scope.watch.then(
         null,
         function(err) {
@@ -25,30 +26,59 @@ angular.module('starter.controllers', [])
           $scope.currentLat  = position.coords.latitude;
           $scope.currentLong = position.coords.longitude;
       });
-      $scope.load();
+
     }else{
+      Matches.destroy();
+      Opponents.destroy();
+      $scope.auth.$signOut();
+      $scope.firebaseUser = undefined;
       $scope.currentUser.$destroy();
       $scope.opponents.$destroy();
+      $scope.currentOpp = null;
+      $scope.filteredOpps = null;
       $scope.watch.clearWatch();
       $state.go('login');
       console.log("logged out");
     };
   });
 
+  $scope.showAlert = function() {
+    var alertPopup = $ionicPopup.alert({
+      title: 'Alert!',
+      template: 'Create and save a profile to look of opponents'
+    });
+    alertPopup.then(function(res) {
+      $state.go('tab.account');
+    });
+  };
+
+  $scope.reloadWatch = function(){
+    $scope.$on("$ionicView.afterEnter", function() {
+        $scope.message = "";
+        //delete $scope.opponents
+        $scope.currentOpp = null;
+        $scope.load();
+    });
+  }
+
   $scope.load = function() {
+
+
     $scope.opponents = Opponents.getOpponents();
     $scope.filteredOpps = [];
 
     $scope.opponents.$loaded()
       .then(function(data){
 
+        $scope.reloadWatch();
+
         for(var i = 0; i < data.length; ++i){
           $scope.calcDistance($scope.currentLat, $scope.currentLong, data[i].lat, data[i].long);
-          if($scope.distance <= $scope.currentUser.searchDist && $scope.currentUser.sport == data[i].sport){
+          if($scope.distance <= $scope.currentUser.searchDist && $scope.currentUser.sport == data[i].sport && data[i].$id != $scope.firebaseUser.uid){
             $scope.filteredOpps.push(data[i])
           }
         }
-
+        $scope.opponents.$destroy();
         if( $scope.filteredOpps[oppCount] && $scope.filteredOpps[oppCount].$id != $scope.firebaseUser.uid){
           $scope.currentOpp = angular.copy($scope.filteredOpps[oppCount]);
           $scope.calcDistance($scope.currentLat, $scope.currentLong, $scope.currentOpp.lat, $scope.currentOpp.long);
@@ -62,6 +92,8 @@ angular.module('starter.controllers', [])
         }else {
           $scope.message = "";
         }
+
+        $scope.opponents.$destroy();
       })
       .catch(function(error){
           console.log(error);
@@ -69,11 +101,14 @@ angular.module('starter.controllers', [])
   }
 
   $scope.reload = function(){
+    $scope.message = "";
     oppCount = 0;
     Opponents.destroy();
-    $scope.opponents = null;
+    delete $scope.opponents;
     $scope.currentOpp = null;
-    $scope.load();
+    $timeout(function(){
+      $scope.load();
+    },1000);
   }
 
 
@@ -130,7 +165,7 @@ angular.module('starter.controllers', [])
 
 })
 
-.controller('AccountCtrl', function($scope, $state, Auth, Profile, $cordovaGeolocation, $cordovaCamera, $timeout, Opponents, Messages) {
+.controller('AccountCtrl', function($ionicHistory, $scope, $state, Auth, Profile, $cordovaGeolocation, $cordovaCamera, $timeout, Opponents, Messages,$ionicPopup, Matches) {
 
   $scope.auth = Auth;
   $scope.profile = {};
@@ -152,8 +187,18 @@ angular.module('starter.controllers', [])
           $scope.profile.long = position.coords.longitude
       });
     }else{
-      $scope.profile.$destroy();
+      $scope.auth.$signOut();
+
       $state.go('login');
+      if ($scope.profile) {
+        $scope.profile.$destroy();
+      }
+
+      $timeout(function () {
+          $ionicHistory.clearCache();
+          $ionicHistory.clearHistory();
+
+      },300)
     };
   });
 
@@ -180,20 +225,31 @@ angular.module('starter.controllers', [])
     });
   }
 
-
-
+  $scope.successAlert = function() {
+    var alertPopup = $ionicPopup.alert({
+      title: 'Success!',
+      template: 'Profile Saved Successfully'
+    });
+    alertPopup.then(function(res) {
+    });
+  }
 
   $scope.saveProfile = function() {
     $scope.profile.$save().then(function() {
-        alert('Profile saved!');
+        $scope.successAlert();
+        //Opponents.destroy();
       }).catch(function(error) {
-        alert('Error!');
+        alert(error);
       });
   }
 
   $scope.logout = function() {
     firebase.auth().signOut().then(function() {
       console.log("logged out");
+
+      Profile.destroy();
+
+
       $scope.watch.clearWatch();
       $scope.profile.$destroy();
       $scope.profile.images = {profilePic: null};
@@ -203,7 +259,9 @@ angular.module('starter.controllers', [])
   };
 })
 
-.controller('LoginCtrl',  function($scope, Auth, $state) {
+.controller('LoginCtrl',  function($scope, Auth, $state, $ionicPopup, $ionicNavBarDelegate) {
+
+   $ionicNavBarDelegate.showBackButton(false);
 
   $scope.signIn = function() {
     $scope.message = null;
@@ -221,6 +279,17 @@ angular.module('starter.controllers', [])
 
   };
 
+  $scope.successAlert = function() {
+    var alertPopup = $ionicPopup.alert({
+      title: 'Success!',
+      template: 'New Account Created'
+    });
+    alertPopup.then(function(res) {
+      $scope.auth = Auth;
+      $state.go('tab.account');
+    });
+  }
+
   $scope.createUser = function() {
     $scope.message = null;
     $scope.error = null;
@@ -231,6 +300,8 @@ angular.module('starter.controllers', [])
         $scope.message = "User created with email: " + firebaseUser.email;
         $scope.email = '';
         $scope.password = '';
+        $scope.successAlert();
+
       }).catch(function(error) {
         $scope.error = error;
       });
@@ -244,7 +315,9 @@ angular.module('starter.controllers', [])
     if(firebaseUser){
       $scope.matches = Matches.getMatches(firebaseUser.uid);
     }else{
+      $scope.auth.$signOut();
       $scope.matches.$destroy();
+      Matches.destroy();
       $state.go('login');
       $scope.matches = null;
     };
@@ -254,8 +327,9 @@ angular.module('starter.controllers', [])
     Matches.removeMatch(index);
   }
 })
-.controller('ChatCtrl', function($scope, $stateParams, Auth, Messages, $state, Profile, $ionicScrollDelegate) {
+.controller('ChatCtrl', function($ionicNavBarDelegate, $scope, $stateParams, Auth, Messages, $state, Profile, $ionicScrollDelegate) {
 
+  $ionicNavBarDelegate.showBackButton(true);
   $scope.auth = Auth;
   $scope.allMessages = [];
   $scope.filteredMessages = [];
@@ -268,7 +342,9 @@ angular.module('starter.controllers', [])
         $scope.currentUser = Profile.getProfile(firebaseUser.uid);
         $scope.loadMessages();
 
-    }else{
+    }else if(!firebaseUser){
+        Messages.logout();
+        $scope.auth.$signOut();
         $scope.allMessages.$destroy();
         $scope.opponent.$destroy();
         $scope.currentUser.$destroy();

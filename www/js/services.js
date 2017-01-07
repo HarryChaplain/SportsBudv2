@@ -12,9 +12,8 @@ angular.module('starter.services', ['firebase'])
     matches: []
   };
 
-  var ref = firebase.database().ref("Matches");
-
   m.addMatch = function(currentUser, matchID, currentOpp) {
+    var ref = firebase.database().ref("Matches");
     var addMatchRef = ref.child(currentUser).child(matchID);
     m.matches = $firebaseObject(addMatchRef);
     m.matches = angular.extend(m.matches, currentOpp);
@@ -24,6 +23,7 @@ angular.module('starter.services', ['firebase'])
   }
 
   m.getMatches = function(currentUser){
+    var ref = firebase.database().ref("Matches");
     var matchesRef = ref.child(currentUser);
     m.matches = $firebaseArray(matchesRef);
     return m.matches;
@@ -33,13 +33,10 @@ angular.module('starter.services', ['firebase'])
     m.matches.$remove(index);
   }
 
-  m.getSpecificMat = function(oppId){
-    for (var i = 0; i < m.matches.length; i++) {
-        if (m.matches[i].$id === oppId) {
-          return m.matches[i];
-        }
-      }
-      return null;
+  m.destroy = function(){
+    if (m.matches) {
+      m.matches = null;
+    }
   }
 
 
@@ -50,16 +47,18 @@ angular.module('starter.services', ['firebase'])
 
   var opponents = [];
 
-  var ref = firebase.database().ref("Profile");
+
 
   opponents.getOpponents = function(){
-    opponents = [];
+    var ref = firebase.database().ref("Profile");
+    //opponents = [];
     opponents = $firebaseArray(ref);
     return opponents;
   }
 
   opponents.destroy = function(){
-    opponents.$destroy();
+    //opponents.$destroy();
+    opponents = null;
   }
 
   return opponents;
@@ -82,7 +81,8 @@ angular.module('starter.services', ['firebase'])
   }
 
   messages.logout = function(){
-    messages.$destroy();
+
+    messages = null;
   }
 
   return messages;
@@ -105,6 +105,11 @@ angular.module('starter.services', ['firebase'])
 
   profile.getFirstname = function(){
     return  profile.firstname;
+  }
+
+  profile.destroy = function(){
+    profile.$destroy();
+    profile = null;
   }
 
 
