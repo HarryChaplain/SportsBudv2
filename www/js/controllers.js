@@ -7,6 +7,7 @@ angular.module('starter.controllers', [])
   //$scope.filteredOpps = [];
   $scope.currentOpp = null;
 
+
   $scope.auth.$onAuthStateChanged(function(firebaseUser) {
     if(firebaseUser){
       oppCount= 0;
@@ -28,16 +29,16 @@ angular.module('starter.controllers', [])
       });
 
     }else{
+      $state.go('login', {}, {reload: true});
       Matches.destroy();
       Opponents.destroy();
       $scope.auth.$signOut();
       $scope.firebaseUser = undefined;
-      $scope.currentUser.$destroy();
       $scope.opponents.$destroy();
       $scope.currentOpp = null;
       $scope.filteredOpps = null;
       $scope.watch.clearWatch();
-      $state.go('login');
+
       console.log("logged out");
     };
   });
@@ -189,16 +190,10 @@ angular.module('starter.controllers', [])
     }else{
       $scope.auth.$signOut();
 
-      $state.go('login');
+      $state.go('login', {}, {reload: true});
       if ($scope.profile) {
-        $scope.profile.$destroy();
+        $scope.profile = null;
       }
-
-      $timeout(function () {
-          $ionicHistory.clearCache();
-          $ionicHistory.clearHistory();
-
-      },300)
     };
   });
 
@@ -247,12 +242,11 @@ angular.module('starter.controllers', [])
     firebase.auth().signOut().then(function() {
       console.log("logged out");
 
-      Profile.destroy();
-
 
       $scope.watch.clearWatch();
-      $scope.profile.$destroy();
+
       $scope.profile.images = {profilePic: null};
+      $state.go('login', {}, {reload: true});
     }, function(error) {
       console.log(error);
     });
@@ -261,7 +255,18 @@ angular.module('starter.controllers', [])
 
 .controller('LoginCtrl',  function($scope, Auth, $state, $ionicPopup, $ionicNavBarDelegate) {
 
-   $ionicNavBarDelegate.showBackButton(false);
+  $ionicNavBarDelegate.showBackButton(false);
+
+  $scope.$on("$ionicView.beforeEnter", function() {
+
+    $timeout(function () {
+        $ionicHistory.clearCache();
+        $ionicHistory.clearHistory();
+        Auth.$signOut();
+
+    },300)
+
+  });
 
   $scope.signIn = function() {
     $scope.message = null;
@@ -318,7 +323,7 @@ angular.module('starter.controllers', [])
       $scope.auth.$signOut();
       $scope.matches.$destroy();
       Matches.destroy();
-      $state.go('login');
+      $state.go('login', {}, {reload: true});
       $scope.matches = null;
     };
   });
@@ -349,6 +354,7 @@ angular.module('starter.controllers', [])
         $scope.opponent.$destroy();
         $scope.currentUser.$destroy();
         $stateParams.chatId = null;
+        $state.go('login', {}, {reload: true});
         console.log("logged out");
 
       };
