@@ -1,10 +1,15 @@
 
-
 <ion-view view-title="Matches">
   <ion-content class="padding">
     <ion-list>
-        <h4 ng-show="matches.length === 0" align="middle" class="padding-top">No Matches</h4>
-      <ion-item ng-repeat="opponent in matches" class="item-avatar" href="#/tab/matches/{{opponent.$id}}">
+      <label class="item item-input">
+        <i class="icon ion-search placeholder-icon"></i>
+        <input type="text" placeholder="Search" ng-model="searchText">
+      </label>
+    </ion-list>
+    <ion-list>
+      <h4 ng-show="matches.length === 0" align="middle" class="padding-top">No Matches</h4>
+      <ion-item ng-repeat="opponent in matches | filter:searchText" class="item-avatar" href="#/tab/matches/{{opponent.$id}}">
         <img ng-src="data:image/jpeg;base64,{{ opponent.images.profilePic }}">
         <h2>{{ opponent.firstname }}</h2>
         <p>Wants to play {{ opponent.sport }}</p>

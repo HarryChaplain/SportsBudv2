@@ -30,6 +30,7 @@ angular.module('starter.controllers', [])
 
     }else{
       $state.go('login', {}, {reload: true});
+      $state.reload()
       Matches.destroy();
       Opponents.destroy();
       $scope.auth.$signOut();
@@ -320,11 +321,14 @@ angular.module('starter.controllers', [])
     if(firebaseUser){
       $scope.matches = Matches.getMatches(firebaseUser.uid);
     }else{
+      console.log($scope);
+
       $scope.auth.$signOut();
       $scope.matches.$destroy();
       Matches.destroy();
       $state.go('login', {}, {reload: true});
       $scope.matches = null;
+
     };
   });
 
