@@ -1,7 +1,7 @@
 {
-  "name": "sportsbud",
+  "name": "sportsbudv2",
   "version": "1.1.1",
-  "description": "SportsBud: An Ionic project",
+  "description": "SportsBudv2: An Ionic project",
   "dependencies": {
     "angularfire": "^2.1.0",
     "gulp": "^3.5.6",
